@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SportStore.Models;
+using SportsStore.Data;
+using Microsoft.EntityFrameworkCore;
+using SportsStore.Data.Models;
 
 namespace SportStore
 {
@@ -22,8 +25,21 @@ namespace SportStore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IProductRepository, FakeProductRepository>();
+            
+
+
+
             services.AddMvc();
+            services.AddSingleton(Configuration);
+            //services.AddTransient<IProductRepository, EFProductRepository>();
+            services.AddScoped<IProductRepository, EFProductRepository>(); // so that Bookservice is injected into controllers and other components that request IBook
+
+
+            // configure ef and dbcontext.
+            // ef can now work with other databases, including non-relational
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("SportStoreProducts")));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,12 +68,15 @@ namespace SportStore
             */
 
             app.UseMvc(routes => {
+
+                routes.MapRoute(name: "pagination",template: "Products/Page{page}",defaults: new { Controller = "Product", action = "List" });
+
                 routes.MapRoute(
                 name: "default",
                template: "{controller=Product}/{action=List}/{id?}");
             });
 
-
+            //SeedData.EnsurePopulated(app);
         }
     }
 }
