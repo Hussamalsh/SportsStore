@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SportStore.Models;
 
 namespace SportStore
 {
@@ -21,6 +22,7 @@ namespace SportStore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IProductRepository, FakeProductRepository>();
             services.AddMvc();
         }
 
@@ -38,13 +40,24 @@ namespace SportStore
             }
 
             app.UseStaticFiles();
+            app.UseStatusCodePages();
 
-            app.UseMvc(routes =>
+            /*
+             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            */
+
+            app.UseMvc(routes => {
+                routes.MapRoute(
+                name: "default",
+               template: "{controller=Product}/{action=List}/{id?}");
+            });
+
+
         }
     }
 }
