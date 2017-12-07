@@ -10,6 +10,7 @@ using SportStore.Models;
 using SportsStore.Data;
 using Microsoft.EntityFrameworkCore;
 using SportsStore.Data.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace SportStore
 {
@@ -33,7 +34,10 @@ namespace SportStore
             services.AddSingleton(Configuration);
             //services.AddTransient<IProductRepository, EFProductRepository>();
             services.AddScoped<IProductRepository, EFProductRepository>(); // so that Bookservice is injected into controllers and other components that request IBook
+            services.AddTransient<IOrderRepository, EFOrderRepository>();
 
+            services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMemoryCache();
             services.AddSession();
